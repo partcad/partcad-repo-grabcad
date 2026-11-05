@@ -1,0 +1,58 @@
+# PartCAD package: GrabCAD Library models as parts, served by a repository plugin.
+#
+# Published as //pub/universe/grabcad/models: this package is
+# //pub/universe/grabcad, and its one external dependency 'models' is served by
+# the grabcad_repo plugin. Nothing is listed - a model site's catalog is not
+# something to enumerate - so a part is asked for by name, and found with
+# 'pc search parts' (see the README).
+name: //pub/universe/grabcad
+
+desc: |
+  Models in the GrabCAD Library (https://grabcad.com/library) as PartCAD
+  parts, a part per file of a model, by the model's slug. Nothing is listed: a
+  part is asked for by name, and found with 'pc search parts'. No geometry is
+  vendored; every file is fetched from GrabCAD when it is first built.
+url: https://grabcad.com/library
+
+# The first PartCAD whose repository plugins may search their own catalog
+# ('searchKinds') and resolve a parametrized name themselves ('instanceKinds'),
+# which is what lets a parameter choose another file of a model, and that has
+# 'pc login'.
+partcad: ">=0.9.3"
+
+# An upload to a model site says nothing about whether, or how, it is made to
+# be manufactured. The plugin says the same of 'models' in its metadata.
+manufacturable: false
+
+docs:
+  name: GrabCAD for PartCAD
+  usage: |
+    ```shell
+    pc search parts -P //pub/universe/grabcad/models -k "nema 17"
+    pc inspect //pub/universe/grabcad/models:nema-17-stepper-motor-23
+    pc inspect "//pub/universe/grabcad/models:nema-17-stepper-motor-23;format=step"
+    ```
+
+dependencies:
+  models:
+    type: external
+    plugin: :grabcad_repo
+    desc: GrabCAD Library models, a part per file.
+
+repositories:
+  grabcad_repo:
+    type: basic
+    path: grabcad_repo.py
+    desc: Serves GrabCAD Library models as parts, and searches GrabCAD.
+    parameters:
+      # Empty here, and meant to stay so. A credential is the user's own, and
+      # is set where only they see it; the plugin reads the environment first.
+      session:
+        type: string
+        default: ""
+        desc: >-
+          The '_grabcad_session' cookie of a browser signed in to GrabCAD.
+          Downloading a file needs it; reading a model and searching do not.
+          Prefer the GRABCAD_SESSION environment variable, or set this in your
+          own ~/.partcad/config.yaml (see the README) - never in a package.
+          'pc login //pub/universe/grabcad:grabcad_repo' sets it.
