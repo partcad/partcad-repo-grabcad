@@ -35,8 +35,9 @@ A model is named by the model's slug, as in `grabcad.com/library/nema-17-6`:
 | `nema-17-6;format=stl` | its best STL |
 | `nema-17-6;file=<name>` | one file, by its name (`<name>#2` for the second of that name, in another folder) |
 
-Both parameters may be given, and must then agree. "Best" is by format, in
-this order, and among files of one format the first the site lists:
+Both may be given, and must then agree; a third, `source`, and the plugin's
+own `formats` are under [Parameters](#parameters). "Best" is by format, in
+this order unless `formats` says otherwise, and among files of one format the first the site lists:
 
 | Format | Read as PartCAD part type | Extensions |
 | --- | --- | --- |
@@ -122,6 +123,78 @@ Reading models and searching need no session, so a part can be named, and
 does not carry PartCAD's environment into its container, so an environment
 variable does not reach the plugin there. The repository parameter does, being
 part of what PartCAD hands the plugin; use that, or `pythonSandbox: venv`.
+
+## Parameters
+
+The plugin's parameters, declared in `partcad.yaml`, are a default for every
+GrabCAD part:
+
+| Parameter | Default | What it is |
+| --- | --- | --- |
+| `formats` | all, in the order above | The formats to take a model in, best first, separated by commas. A format left out is not taken - `stl,3mf` is meshes only - unless a part asks for it by its own `format` or `file`. |
+| `source` | `auto` | Which of a model's files: GrabCAD has no preview meshes of its own, so `auto` and `original` are the same here and `preview` finds nothing. |
+| `session` | empty | The `_grabcad_session` cookie of a browser signed in to GrabCAD. Downloading a file needs it; reading a model and searching do not. GrabCAD has no API keys. `GRABCAD_SESSION` gives it too. |
+
+They are yours to set without touching this package - every one of them, the
+credentials included, and the OAuth or API-key settings beside them:
+
+- in your own `~/.partcad/config.yaml`, by the plugin's name, which is where
+  `pc login` keeps the credentials:
+
+  ```yaml
+  parameters:
+    "//pub/universe/grabcad:grabcad_repo":
+      formats: stl,3mf
+  ```
+
+- or, for anything but the credentials, in a package of your own, as an enrich
+  of the plugin and a package it serves - `//grabcad_meshes:<model>` in a
+  package at the root:
+
+  ```yaml
+  repositories:
+    meshes_repo:
+      type: enrich
+      source: //pub/universe/grabcad:grabcad_repo
+      with:
+        formats: stl,3mf
+  dependencies:
+    grabcad_meshes:
+      type: external
+      plugin: :meshes_repo
+  ```
+
+A part's own `file`, `format` and `source` override them for that part - in its
+name (`nema-17-stepper-motor-23;format=stl`), or in the `with` of an enrich of the part:
+
+```yaml
+parts:
+  clip:
+    type: enrich
+    source: //pub/universe/grabcad/models:nema-17-stepper-motor-23
+    with:
+      format: stl
+```
+
+PartCAD keys what it caches of this package on your overrides of the plugin's
+parameters, so a change to one - logging in, too - takes effect at once. An
+environment variable is not seen there: after setting one, `pc update`
+refreshes what was cached without it.
+
+## Logging in with nobody at the screen
+
+An AI agent, or a script, logs in without a browser:
+
+```shell
+pc login --agent //pub/universe/grabcad:grabcad_repo
+pc login --agent --set session=... //pub/universe/grabcad:grabcad_repo
+```
+
+The first prints what a person would do in the browser instead of opening one -
+where to sign in, what to copy, and the command that hands it over - and exits
+with status 3. It says where in a signed-in browser the session cookie is. The second hands over what the person found; the
+plugin checks it with GrabCAD before PartCAD keeps it. `pc mcp`'s `login`
+tool works the same way.
 
 ## Status
 

@@ -39,7 +39,9 @@ import urllib.parse
 # to what is answered - here or in remote_models.py.
 #
 # v1: library models as parts, one per file, read through /community/api/v1; and 'login'.
-CACHE_VERSION = 1
+# v2: a part's 'source' parameter, and the plugin's 'formats' and 'source' preferences;
+#     'login' says what to do with nobody at the screen.
+CACHE_VERSION = 2
 
 
 def _shared():
@@ -78,6 +80,11 @@ class GrabCAD(rm.Site):
     URL = WEB + "/library"
     DESC = "Models in the GrabCAD Library, a part per file, by the model's slug. Nothing is listed; search instead."
     VERSION = CACHE_VERSION
+    LOGIN_INSTRUCTIONS = (
+        "Reading a model and searching GrabCAD need no login; downloading any of its files does. GrabCAD has no API "
+        "keys: what is needed is the '_grabcad_session' cookie of grabcad.com, from a browser signed in to GrabCAD: "
+        "the browser's developer tools show it, under Application (or Storage) > Cookies."
+    )
 
     def __init__(self, request=None):
         super().__init__(request)

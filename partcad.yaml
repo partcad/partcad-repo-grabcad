@@ -44,15 +44,75 @@ repositories:
     type: basic
     path: grabcad_repo.py
     desc: Serves GrabCAD Library models as parts, and searches GrabCAD.
+    # Every parameter here is a default for every GrabCAD part, and yours
+    # to change without touching this package, two ways:
+    #
+    # - in your own ~/.partcad/config.yaml, under 'parameters', by the
+    #   plugin's name - which is also where 'pc login' keeps the session:
+    #
+    #     parameters:
+    #       //pub/universe/grabcad:grabcad_repo:
+    #         formats: stl,3mf
+    #
+    # - or in a package of your own, as an enrich of the plugin and a package
+    #   it serves, whose parts are then yours to name - '//grabcad_meshes:<model>'
+    #   in a package at the root (never with credentials: those are yours,
+    #   not a package's):
+    #
+    #     repositories:
+    #       meshes_repo:
+    #         type: enrich
+    #         source: //pub/universe/grabcad:grabcad_repo
+    #         with:
+    #           formats: stl,3mf
+    #     dependencies:
+    #       grabcad_meshes:
+    #         type: external
+    #         plugin: :meshes_repo
+    #
+    # A part's own parameters override these for that part. Every part takes
+    # 'file' (one of the model's files, by name ('<name>#2' for the second of
+    # that name)), 'format' (its best file of that format: step, brep, 3mf,
+    # stl, obj, glb or scad) and 'source' (as below) - in its name,
+    # 'nema-17-stepper-motor-23;format=stl', or in the 'with' of an enrich of
+    # the part:
+    #
+    #     parts:
+    #       clip:
+    #         type: enrich
+    #         source: //pub/universe/grabcad/models:nema-17-stepper-motor-23
+    #         with:
+    #           format: stl
     parameters:
-      # Empty here, and meant to stay so. A credential is the user's own, and
-      # is set where only they see it; the plugin reads the environment first.
+      formats:
+        type: string
+        default: ""
+        desc: >-
+          The formats to take a model in, best first, separated by commas:
+          step, brep, 3mf, stl, obj, glb, scad. A format left out is not taken
+          - 'stl,3mf' is meshes only - unless a part asks for it by its own
+          'format' or 'file'. Empty is all of them, in that order.
+      source:
+        type: string
+        default: auto
+        enum: [auto, original, preview]
+        desc: >-
+          Which of a model's files. GrabCAD has no preview meshes of its own:
+          every file is the designer's, and downloading one takes a signed-in
+          account, so 'auto' and 'original' are the same here, and 'preview'
+          finds nothing.
+      # Empty here, and meant to stay so: a credential is the user's own, and
+      # is set where only they see it.
       session:
         type: string
         default: ""
         desc: >-
           The '_grabcad_session' cookie of a browser signed in to GrabCAD.
           Downloading a file needs it; reading a model and searching do not.
-          Prefer the GRABCAD_SESSION environment variable, or set this in your
-          own ~/.partcad/config.yaml (see the README) - never in a package.
-          'pc login //pub/universe/grabcad:grabcad_repo' sets it.
+          GrabCAD has no API keys. 'pc login
+          //pub/universe/grabcad:grabcad_repo' gets it in a browser and keeps
+          it in your ~/.partcad/config.yaml, under 'parameters' as above; 'pc
+          login --agent' says how to get it by hand, and takes it back with '--
+          set session=...'. The GRABCAD_SESSION environment variable gives it
+          too, where the plugin's sandbox sees the environment (a container
+          does not). Never set it in a package.
