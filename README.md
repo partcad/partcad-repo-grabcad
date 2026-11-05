@@ -143,6 +143,12 @@ happen were the query not what the library searched by.
 PartCAD does not read IGES, and a great many GrabCAD models are STEP and IGES,
 or SolidWorks only. Those with an IGES file and no STEP are not parts here yet.
 
+`pc login` was run against the live site in a real (headed) Chrome with
+PartCAD's extension: GrabCAD's sign-in page loads, the e-mail field is
+spotlighted with the guide's pointer, and the extension waits, as it should,
+for `/members/me` to answer for a signed-in member before it takes the
+session cookie. Signing in itself was not done, for want of an account.
+
 ## Layout
 
 | Path | Purpose |
