@@ -5,7 +5,7 @@
 #
 """A PartCAD 'basic' repository plugin that serves GrabCAD Library models as parts.
 
-Published as ``//pub/universe/grabcad/models``. Nothing is listed: a part is
+Published as ``//pub/collection/grabcad/models``. Nothing is listed: a part is
 asked for by the model's slug (the last part of grabcad.com/library/<slug>), and
 is one file of that model.
 

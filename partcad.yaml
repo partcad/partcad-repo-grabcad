@@ -1,11 +1,11 @@
 # PartCAD package: GrabCAD Library models as parts, served by a repository plugin.
 #
-# Published as //pub/universe/grabcad/models: this package is
-# //pub/universe/grabcad, and its one external dependency 'models' is served by
+# Published as //pub/collection/grabcad/models: this package is
+# //pub/collection/grabcad, and its one external dependency 'models' is served by
 # the grabcad_repo plugin. Nothing is listed - a model site's catalog is not
 # something to enumerate - so a part is asked for by name, and found with
 # 'pc search parts' (see the README).
-name: //pub/universe/grabcad
+name: //pub/collection/grabcad
 
 desc: |
   Models in the GrabCAD Library (https://grabcad.com/library) as PartCAD
@@ -28,9 +28,9 @@ docs:
   name: GrabCAD for PartCAD
   usage: |
     ```shell
-    pc search parts -P //pub/universe/grabcad/models -k "nema 17"
-    pc inspect //pub/universe/grabcad/models:nema-17-stepper-motor-23
-    pc inspect "//pub/universe/grabcad/models:nema-17-stepper-motor-23;format=step"
+    pc search parts -P //pub/collection/grabcad/models -k "nema 17"
+    pc inspect //pub/collection/grabcad/models:nema-17-stepper-motor-23
+    pc inspect "//pub/collection/grabcad/models:nema-17-stepper-motor-23;format=step"
     ```
 
 dependencies:
@@ -51,7 +51,7 @@ repositories:
     #   plugin's name - which is also where 'pc login' keeps the session:
     #
     #     parameters:
-    #       //pub/universe/grabcad:grabcad_repo:
+    #       //pub/collection/grabcad:grabcad_repo:
     #         formats: stl,3mf
     #
     # - or in a package of your own, as an enrich of the plugin and a package
@@ -62,7 +62,7 @@ repositories:
     #     repositories:
     #       meshes_repo:
     #         type: enrich
-    #         source: //pub/universe/grabcad:grabcad_repo
+    #         source: //pub/collection/grabcad:grabcad_repo
     #         with:
     #           formats: stl,3mf
     #     dependencies:
@@ -80,7 +80,7 @@ repositories:
     #     parts:
     #       clip:
     #         type: enrich
-    #         source: //pub/universe/grabcad/models:nema-17-stepper-motor-23
+    #         source: //pub/collection/grabcad/models:nema-17-stepper-motor-23
     #         with:
     #           format: stl
     parameters:
@@ -110,7 +110,7 @@ repositories:
           The '_grabcad_session' cookie of a browser signed in to GrabCAD.
           Downloading a file needs it; reading a model and searching do not.
           GrabCAD has no API keys. 'pc login
-          //pub/universe/grabcad:grabcad_repo' gets it in a browser and keeps
+          //pub/collection/grabcad:grabcad_repo' gets it in a browser and keeps
           it in your ~/.partcad/config.yaml, under 'parameters' as above; 'pc
           login --agent' says how to get it by hand, and takes it back with '--
           set session=...'. The GRABCAD_SESSION environment variable gives it

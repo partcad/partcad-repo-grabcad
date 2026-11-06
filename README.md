@@ -1,15 +1,15 @@
 # GrabCAD for PartCAD
 
 Serves GrabCAD's models as PartCAD parts, published as
-`//pub/universe/grabcad/models`.
+`//pub/collection/grabcad/models`.
 
 **Nothing is listed.** A model site's catalog is not something to enumerate,
 so `pc list parts` of this package is empty, as is `pc list packages`. A part is
 asked for by name, and found with `pc search parts`:
 
 ```shell
-pc search parts -P //pub/universe/grabcad/models -k "cable clip"
-pc inspect "//pub/universe/grabcad/models:nema-17-6"
+pc search parts -P //pub/collection/grabcad/models -k "cable clip"
+pc inspect "//pub/collection/grabcad/models:nema-17-6"
 ```
 
 **No geometry is vendored.** Every file is fetched from GrabCAD the first
@@ -79,7 +79,7 @@ ten minutes.
 ## Logging in
 
 ```shell
-pc login //pub/universe/grabcad:grabcad_repo
+pc login //pub/collection/grabcad:grabcad_repo
 ```
 
 checks the session the plugin has by asking the library whom it belongs to
@@ -108,7 +108,7 @@ export GRABCAD_SESSION=...        # read by the plugin; see the note on Docker b
 ```yaml
 # ~/.partcad/config.yaml
 parameters:
-  "//pub/universe/grabcad:grabcad_repo":
+  "//pub/collection/grabcad:grabcad_repo":
     session: "..."
 ```
 
@@ -143,7 +143,7 @@ credentials included, and the OAuth or API-key settings beside them:
 
   ```yaml
   parameters:
-    "//pub/universe/grabcad:grabcad_repo":
+    "//pub/collection/grabcad:grabcad_repo":
       formats: stl,3mf
   ```
 
@@ -155,7 +155,7 @@ credentials included, and the OAuth or API-key settings beside them:
   repositories:
     meshes_repo:
       type: enrich
-      source: //pub/universe/grabcad:grabcad_repo
+      source: //pub/collection/grabcad:grabcad_repo
       with:
         formats: stl,3mf
   dependencies:
@@ -171,7 +171,7 @@ name (`nema-17-stepper-motor-23;format=stl`), or in the `with` of an enrich of t
 parts:
   clip:
     type: enrich
-    source: //pub/universe/grabcad/models:nema-17-stepper-motor-23
+    source: //pub/collection/grabcad/models:nema-17-stepper-motor-23
     with:
       format: stl
 ```
@@ -186,8 +186,8 @@ refreshes what was cached without it.
 An AI agent, or a script, logs in without a browser:
 
 ```shell
-pc login --agent //pub/universe/grabcad:grabcad_repo
-pc login --agent --set session=... //pub/universe/grabcad:grabcad_repo
+pc login --agent //pub/collection/grabcad:grabcad_repo
+pc login --agent --set session=... //pub/collection/grabcad:grabcad_repo
 ```
 
 The first prints what a person would do in the browser instead of opening one -
@@ -226,7 +226,7 @@ session cookie. Signing in itself was not done, for want of an account.
 
 | Path | Purpose |
 | --- | --- |
-| `partcad.yaml` | `//pub/universe/grabcad`; the `models` external dependency and the `grabcad_repo` repository that serves it. |
+| `partcad.yaml` | `//pub/collection/grabcad`; the `models` external dependency and the `grabcad_repo` repository that serves it. |
 | `grabcad_repo.py` | The repository plugin: how GrabCAD is asked. |
 | `remote_models.py` | What every model-site plugin shares, byte for byte: the names, the formats, HTTP and its cache, the keys PartCAD asks. The same file is in partcad-repo-thingiverse, partcad-repo-makerworld, partcad-repo-grabcad, partcad-repo-printables and partcad-repo-cults3d; `remote_models.sha256` is its digest, and a test fails when the two disagree - change it in all five. |
 | `test_*.py` | The tests. Nothing in them touches the network. |
