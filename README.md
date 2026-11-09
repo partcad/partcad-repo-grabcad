@@ -1,15 +1,15 @@
 # GrabCAD for PartCAD
 
 Serves GrabCAD's models as PartCAD parts, published as
-`//pub/universe/grabcad/models`.
+`//pub/collection/grabcad/models`.
 
 **Nothing is listed.** A model site's catalog is not something to enumerate,
 so `pc list parts` of this package is empty, as is `pc list packages`. A part is
 asked for by name, and found with `pc search parts`:
 
 ```shell
-pc search parts -P //pub/universe/grabcad/models -k "cable clip"
-pc inspect "//pub/universe/grabcad/models:nema-17-6"
+pc search parts -P //pub/collection/grabcad/models -k "cable clip"
+pc inspect "//pub/collection/grabcad/models:nema-17-6"
 ```
 
 **No geometry is vendored.** Every file is fetched from GrabCAD the first
@@ -43,15 +43,29 @@ this order unless `formats` says otherwise, and among files of one format the fi
 | --- | --- | --- |
 | `step` | `step` | `.step`, `.stp` |
 | `brep` | `brep` | `.brep`, `.brp` |
+| `iges` | `iges` | `.iges`, `.igs` |
 | `3mf` | `3mf` | `.3mf` |
 | `stl` | `stl` | `.stl` |
 | `obj` | `obj` | `.obj` |
 | `glb` | `gltf` | `.glb` |
+| `usd` | `usd` | `.usdz`, `.usd`, `.usdc`, `.usda` |
+| `sldprt` | `sldprt` | `.sldprt` |
+| `ipt` | `ipt` | `.ipt` |
+| `catpart` | `catpart` | `.catpart` |
+| `f3d` | `f3d` | `.f3d` |
+| `fcstd` | `fcstd` | `.fcstd` |
+| `sat` | `sat` | `.sat`, `.sab` |
+| `pvz` | `pvz` | `.pvz` |
 | `scad` | `scad` | `.scad` |
 
 An exact boundary representation beats a mesh of it, and 3MF knows its units
 where STL does not. A `.gltf` is not served, since the buffers it names beside
-itself do not come with it; an OpenSCAD source is last, because on a model site
+itself do not come with it. IGES is exact too, after STEP and BREP; OpenUSD - a
+`.usdz`, a stage packed with its textures - comes after glTF; and the native
+documents of CAD applications (SolidWorks, Inventor, CATIA, Fusion, FreeCAD,
+ACIS, Creo View), which PartCAD reads through a converter it downloads on first
+use, come after the meshes, to be taken when a model has nothing else or when
+asked for. An OpenSCAD source is last, because on a model site
 it is usually the customizable source of the meshes beside it. A file in any
 other format - IGES, SolidWorks, Fusion, a picture - is not a part. A name
 that asks for one, or for a file the model has not got, is not found, and the
@@ -79,7 +93,7 @@ ten minutes.
 ## Logging in
 
 ```shell
-pc login //pub/universe/grabcad:grabcad_repo
+pc login //pub/collection/grabcad:grabcad_repo
 ```
 
 checks the session the plugin has by asking the library whom it belongs to
@@ -108,7 +122,7 @@ export GRABCAD_SESSION=...        # read by the plugin; see the note on Docker b
 ```yaml
 # ~/.partcad/config.yaml
 parameters:
-  "//pub/universe/grabcad:grabcad_repo":
+  "//pub/collection/grabcad:grabcad_repo":
     session: "..."
 ```
 
@@ -143,7 +157,7 @@ credentials included, and the OAuth or API-key settings beside them:
 
   ```yaml
   parameters:
-    "//pub/universe/grabcad:grabcad_repo":
+    "//pub/collection/grabcad:grabcad_repo":
       formats: stl,3mf
   ```
 
@@ -155,7 +169,7 @@ credentials included, and the OAuth or API-key settings beside them:
   repositories:
     meshes_repo:
       type: enrich
-      source: //pub/universe/grabcad:grabcad_repo
+      source: //pub/collection/grabcad:grabcad_repo
       with:
         formats: stl,3mf
   dependencies:
@@ -171,7 +185,7 @@ name (`nema-17-stepper-motor-23;format=stl`), or in the `with` of an enrich of t
 parts:
   clip:
     type: enrich
-    source: //pub/universe/grabcad/models:nema-17-stepper-motor-23
+    source: //pub/collection/grabcad/models:nema-17-stepper-motor-23
     with:
       format: stl
 ```
@@ -186,8 +200,8 @@ refreshes what was cached without it.
 An AI agent, or a script, logs in without a browser:
 
 ```shell
-pc login --agent //pub/universe/grabcad:grabcad_repo
-pc login --agent --set session=... //pub/universe/grabcad:grabcad_repo
+pc login --agent //pub/collection/grabcad:grabcad_repo
+pc login --agent --set session=... //pub/collection/grabcad:grabcad_repo
 ```
 
 The first prints what a person would do in the browser instead of opening one -
@@ -226,16 +240,21 @@ session cookie. Signing in itself was not done, for want of an account.
 
 | Path | Purpose |
 | --- | --- |
-| `partcad.yaml` | `//pub/universe/grabcad`; the `models` external dependency and the `grabcad_repo` repository that serves it. |
+| `partcad.yaml` | `//pub/collection/grabcad`; the `models` external dependency and the `grabcad_repo` repository that serves it. |
 | `grabcad_repo.py` | The repository plugin: how GrabCAD is asked. |
-| `remote_models.py` | What every model-site plugin shares, byte for byte: the names, the formats, HTTP and its cache, the keys PartCAD asks. The same file is in every model-site plugin (partcad-repo-thingiverse, -makerworld, -grabcad, -printables, -cults3d and -sketchfab); `remote_models.sha256` is its digest, and a test fails when the two disagree - change it in all of them. |
-| `test_*.py` | The tests. Nothing in them touches the network. |
+| `test_*.py`, `conftest.py` | The tests. Nothing in them touches the network. They need PartCAD installed: the plugin imports its toolkit, `plugin_models`, from PartCAD's wrappers. |
 
 ```shell
 python -m pytest
 ```
 
-When what the plugin answers changes - here or in `remote_models.py` - raise
+What every model-site plugin shares - the names, the formats, HTTP and its
+cache, the keys PartCAD asks - is PartCAD's own toolkit, `plugin_models`, one
+of its wrappers (PartCAD 0.9.20 and later), which the plugin imports wherever
+PartCAD runs it.
+
+When what the plugin answers changes - here, or in the `plugin_models` of a new
+PartCAD - raise
 `CACHE_VERSION` in `grabcad_repo.py`: PartCAD keys everything it caches of this
 package on it.
 
