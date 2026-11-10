@@ -117,3 +117,4 @@ repositories:
           set session=...'. The GRABCAD_SESSION environment variable gives it
           too, where the plugin's sandbox sees the environment (a container
           does not). Never set it in a package.
+        shared: true

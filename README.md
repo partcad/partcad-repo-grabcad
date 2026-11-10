@@ -127,6 +127,12 @@ parameters:
     session: "..."
 ```
 
+`session` is the package's, not only the plugin's: it says `shared: true`. With
+PartCAD 0.10.4 or later, `pc login` keeps it under the package,
+`"//pub/collection/grabcad":`, where an entry gives it to every object of the
+package; an entry for the plugin, as above, still works, and wins over the
+package's. An older PartCAD reads the plugin's entry only.
+
 A session lasts as long as GrabCAD keeps it: when downloads start to say the
 sign-in is wanted again, copy a new one. The cookie is sent to `grabcad.com`,
 and to nothing else.
